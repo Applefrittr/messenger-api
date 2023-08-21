@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const cors = require("cors");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
@@ -10,8 +11,22 @@ const usersRouter = require("./routes/users");
 // Load env variables
 require("dotenv").config();
 
+// connect to MongoDB
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+
+const mongoDB = process.env.MONGODB_URI;
+
+async function main() {
+  await mongoose.connect(mongoDB);
+  console.log("connected to mongoDB");
+}
+
+main().catch((err) => console.log(err));
+
 const app = express();
 
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -21,11 +21,11 @@ const UserSchema = new Schema(
   }
 );
 
-PostSchema.virtual("userSince_string").get(function () {
+UserSchema.virtual("userSince_string").get(function () {
   return DateTime.fromJSDate(this.userSince).toLocaleString(DateTime.DATE_FULL);
 });
 
-PostSchema.virtual("birthday_string").get(function () {
+UserSchema.virtual("birthday_string").get(function () {
   return DateTime.fromJSDate(this.birthday).toLocaleString(DateTime.DATE_FULL);
 });
 
