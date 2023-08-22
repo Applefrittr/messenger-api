@@ -14,6 +14,7 @@ const UserSchema = new Schema(
     birthday: { type: Date },
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    country: { type: String },
   },
   {
     toObject: { virtuals: true },
