@@ -31,6 +31,9 @@ exports.create = [
     } else {
       const user = new User({
         username: req.body.username,
+        userSince: new Date(),
+        avatar:
+          "https://static.wikia.nocookie.net/leagueoflegends/images/2/22/What's_in_the_Orb_profileicon.png",
       });
 
       bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
@@ -85,10 +88,45 @@ exports.user_GET = [
   asyncHandler(async (req, res, next) => {
     jwt.verify(req.token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
       if (err) {
+        console.log("error");
         res.json({ message: "Credentials expired, please login again." });
       } else {
         res.json({ payload });
       }
     });
+  }),
+];
+
+exports.profile_GET = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ username: req.params.user }).exec();
+
+  console.log("requesting...");
+  res.json({ user });
+});
+
+exports.profile_POST = [
+  handleToken,
+  asyncHandler(async (req, res, next) => {
+    jwt.verify(
+      req.token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, payload) => {
+        if (err) {
+          res.json({ message: "Credentials expired, please login again." });
+        } else {
+          const user = await User.findOne({ username: req.params.user }).exec();
+
+          user.country = req.body.country;
+          user.personal = req.body.personal;
+          user.birthday = req.body.birthday;
+          user.avatar = req.body.avatar;
+
+          console.log(user);
+
+          await user.save();
+          res.json({ message: "edits submitted" });
+        }
+      }
+    );
   }),
 ];

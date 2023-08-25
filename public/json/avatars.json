@@ -1,4 +1,14 @@
 {
+  "default": "https://static.wikia.nocookie.net/leagueoflegends/images/2/22/What's_in_the_Orb_profileicon.png",
   "img1": "https://static.wikia.nocookie.net/leagueoflegends/images/e/e9/Majestic_Empress_Morgana_Border_profileicon.png",
-  "img2": "https://static.wikia.nocookie.net/leagueoflegends/images/6/68/Lupine_Battleaxe_profileicon.png"
+  "img2": "https://static.wikia.nocookie.net/leagueoflegends/images/6/68/Lupine_Battleaxe_profileicon.png",
+  "img3": "https://static.wikia.nocookie.net/leagueoflegends/images/9/96/Divine_Sword_Irelia_profileicon.png",
+  "img4": "https://static.wikia.nocookie.net/leagueoflegends/images/4/49/Lamb's_Mask_profileicon.png",
+  "img5": "https://static.wikia.nocookie.net/leagueoflegends/images/0/08/Pool_Party_Gangplank_profileicon.png",
+  "img6": "https://static.wikia.nocookie.net/leagueoflegends/images/1/1c/Pengu_Featherknight_profileicon.png",
+  "img7": "https://static.wikia.nocookie.net/leagueoflegends/images/3/3c/Conqueror_Varus_profileicon.png",
+  "img8": "https://static.wikia.nocookie.net/leagueoflegends/images/a/a5/Draven_Draven_profileicon.png",
+  "img9": "https://static.wikia.nocookie.net/leagueoflegends/images/4/41/Fizz_Spaniel_profileicon.png",
+  "img10": "https://static.wikia.nocookie.net/leagueoflegends/images/c/ce/Ahri_Portrait_profileicon.png",
+  "img11": "https://static.wikia.nocookie.net/leagueoflegends/images/9/97/Blood_Moon_Yasuo_profileicon.png"
 }
