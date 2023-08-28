@@ -6,10 +6,16 @@ const userController = require("../controllers/user-controller");
 router.post("/create", userController.create);
 
 // Post user log in
-router.post("/", userController.user_POST);
+//router.post("/", userController.user_POST);
 
-// GET user information
-router.get("/", userController.user_GET);
+// GET all users in the database
+router.get("/", userController.users_GET);
+
+// GET user login
+router.get("/login", userController.login_GET);
+
+// POST user login
+router.post("/login", userController.login_POST);
 
 // GET user profile
 router.get("/:user/profile", userController.profile_GET);

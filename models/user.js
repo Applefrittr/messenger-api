@@ -11,7 +11,7 @@ const UserSchema = new Schema(
     userSince: Date,
     personal: { type: String, trim: true, maxLength: 300 },
     realName: { type: String },
-    birthday: Date,
+    birthday: { type: String },
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
     country: { type: String },
@@ -24,10 +24,6 @@ const UserSchema = new Schema(
 
 UserSchema.virtual("userSince_string").get(function () {
   return DateTime.fromJSDate(this.userSince).toLocaleString(DateTime.DATE_FULL);
-});
-
-UserSchema.virtual("birthday_string").get(function () {
-  return DateTime.fromJSDate(this.birthday).toLocaleString(DateTime.DATE_FULL);
 });
 
 module.exports = mongoose.model("User", UserSchema);

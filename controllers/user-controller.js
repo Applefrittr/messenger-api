@@ -51,7 +51,61 @@ exports.create = [
 ];
 
 // Log the user in.  Find User in database, compare passwords and then create a jwt to be sent back tot he front end
-exports.user_POST = [
+// exports.user_POST = [
+//   // Sanitize and Validate user inputs before login logic
+//   body("username", "Username required").trim().isLength({ min: 1 }).escape(),
+//   body("password", "Password required").trim().isLength({ min: 1 }).escape(),
+//   asyncHandler(async (req, res, next) => {
+//     const errors = validationResult(req);
+
+//     if (!errors.isEmpty()) {
+//       res.json({ errors: errors.array() });
+//     } else {
+//       const user = await User.findOne({ username: req.body.username }) // Query the user and call lean() to convert to regular JS object to prep for JWT serialization
+//         .lean()
+//         .exec();
+//       if (!user) {
+//         res.json({ errors: [{ msg: "User does not exist" }] });
+//         return;
+//       }
+//       if (await bcrypt.compare(req.body.password, user.password)) {
+//         // Create web token to be passed back to front end w/ a 1 day expiration
+//         console.log("creating jwt...");
+//         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+//           expiresIn: 60 * 60 * 24,
+//         });
+//         res.json({ message: "User logged in", accessToken });
+//       } else {
+//         res.json({ errors: [{ msg: "Incorrect Password" }] });
+//       }
+//     }
+//   }),
+// ];
+
+// GET all users in the database, returns back to front end
+exports.users_GET = asyncHandler(async (req, res, next) => {
+  const users = await User.find().exec();
+
+  res.json({ users });
+});
+
+// recieves a JWT from the front end, verifies, decodes, and then passes payload back to the front end (the logged in user info)
+exports.login_GET = [
+  handleToken,
+  asyncHandler(async (req, res, next) => {
+    jwt.verify(req.token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+      if (err) {
+        console.log("error");
+        res.json({ message: "Credentials expired, please login again." });
+      } else {
+        res.json({ payload });
+      }
+    });
+  }),
+];
+
+// Log the user in.  Find User in database, compare passwords and then create a jwt to be sent back tot he front end
+exports.login_POST = [
   // Sanitize and Validate user inputs before login logic
   body("username", "Username required").trim().isLength({ min: 1 }).escape(),
   body("password", "Password required").trim().isLength({ min: 1 }).escape(),
@@ -82,21 +136,7 @@ exports.user_POST = [
   }),
 ];
 
-// recieves a JWT from the front end, verifies, decodes, and then passes payload back to the front end (the logged in user info)
-exports.user_GET = [
-  handleToken,
-  asyncHandler(async (req, res, next) => {
-    jwt.verify(req.token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-      if (err) {
-        console.log("error");
-        res.json({ message: "Credentials expired, please login again." });
-      } else {
-        res.json({ payload });
-      }
-    });
-  }),
-];
-
+// GET logged in user profile details
 exports.profile_GET = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ username: req.params.user }).exec();
 
@@ -104,6 +144,7 @@ exports.profile_GET = asyncHandler(async (req, res, next) => {
   res.json({ user });
 });
 
+// POST the edits to the logged in user profile
 exports.profile_POST = [
   handleToken,
   asyncHandler(async (req, res, next) => {
