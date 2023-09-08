@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/user");
+const Request = require("../models/request");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const handleToken = require("./handle-token");
@@ -106,7 +107,11 @@ exports.login_POST = [
 
 // GET logged in user profile details
 exports.profile_GET = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.user }).exec();
+  const user = await User.findOne({ username: req.params.user })
+    .populate("friends")
+    .populate("requestIn")
+    .populate("requestOut")
+    .exec();
 
   console.log("requesting...");
   res.json({ user });

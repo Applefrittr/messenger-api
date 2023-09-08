@@ -15,6 +15,8 @@ const UserSchema = new Schema(
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
     country: { type: String },
+    requestIn: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    requestOut: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   {
     toObject: { virtuals: true },
