@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user-controller");
 const requestController = require("../controllers/request-controller");
+const friendController = require("../controllers/friend-controller");
 
 // Post(create) new user
 router.post("/create", userController.create);
@@ -41,5 +42,11 @@ router.post(
   "/:user/request/:recipient/decline",
   requestController.decline_request_POST
 );
+
+// GET friend profile
+router.get("/:user/friends/:friend", friendController.profile_GET);
+
+// POST remve friend
+router.post("/:user/friends/:friend/remove", friendController.remove_POST);
 
 module.exports = router;

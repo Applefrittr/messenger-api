@@ -61,10 +61,12 @@ exports.accept_request_POST = asyncHandler(async (req, res, next) => {
 exports.decline_request_POST = asyncHandler(async (req, res, next) => {
   const user1 = await User.findOne({ username: req.params.user })
     .populate("requestIn")
+    .populate("requestOut")
     .exec();
   const user2 = await User.findOne({
     username: req.params.recipient,
   })
+    .populate("requestIn")
     .populate("requestOut")
     .exec();
 
