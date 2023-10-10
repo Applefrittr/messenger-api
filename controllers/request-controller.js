@@ -33,12 +33,18 @@ exports.request_POST = asyncHandler(async (req, res, next) => {
 });
 
 exports.accept_request_POST = asyncHandler(async (req, res, next) => {
-  const user1 = await User.findOne({ username: req.params.user })
+  const user1 = await User.findOne(
+    { username: req.params.user },
+    { password: 0 }
+  )
     .populate("requestIn")
     .exec();
-  const user2 = await User.findOne({
-    username: req.params.recipient,
-  })
+  const user2 = await User.findOne(
+    {
+      username: req.params.recipient,
+    },
+    { password: 0 }
+  )
     .populate("requestOut")
     .exec();
 
