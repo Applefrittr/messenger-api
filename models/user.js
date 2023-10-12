@@ -17,6 +17,7 @@ const UserSchema = new Schema(
     country: { type: String },
     requestIn: [{ type: Schema.Types.ObjectId, ref: "User" }],
     requestOut: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
   },
   {
     toObject: { virtuals: true },

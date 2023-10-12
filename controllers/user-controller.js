@@ -104,7 +104,7 @@ exports.login_POST = [
   }),
 ];
 
-// GET logged in user profile details
+// GET specific user profile details
 exports.profile_GET = asyncHandler(async (req, res, next) => {
   const user = await User.findOne(
     { username: req.params.user },
@@ -113,6 +113,7 @@ exports.profile_GET = asyncHandler(async (req, res, next) => {
     .populate("friends")
     .populate("requestIn")
     .populate("requestOut")
+    .populate("comments")
     .exec();
 
   console.log("requesting...");
