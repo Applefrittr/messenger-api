@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
+const { DateTime } = require("luxon");
 
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema(
   {
-    author: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    text: [{ type: String }],
+    author: { type: String },
+    avatar: { type: String },
+    text: { type: String },
     timestamp: Date,
   },
   {

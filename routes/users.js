@@ -44,7 +44,10 @@ router.post(
   requestController.decline_request_POST
 );
 
-// POST remve friend
+// POST remove friend
 router.post("/:user/friends/:friend/remove", friendController.remove_POST);
+
+// POST a new comment on a friends profile
+router.post("/:user/friends/:friend/comment", commentController.comment_POST);
 
 module.exports = router;
