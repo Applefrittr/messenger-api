@@ -16,7 +16,16 @@ exports.request_GET = asyncHandler(async (req, res, next) => {
 exports.request_POST = asyncHandler(async (req, res, next) => {
   console.log("Request started...");
 
-  const user = await User.findOne({ username: req.params.user }).exec();
+  const user = await User.findOne(
+    { username: req.params.user },
+    { password: 0 }
+  )
+    .populate("friends")
+    .populate("requestIn")
+    .populate("requestOut")
+    .populate("comments")
+    .exec();
+
   const recipient = await User.findOne({
     username: req.params.recipient,
   }).exec();
@@ -29,17 +38,21 @@ exports.request_POST = asyncHandler(async (req, res, next) => {
   await user.save();
   await recipient.save();
 
-  res.json({ message: "Request Sent" });
+  res.json({ message: "Request Sent", user });
 });
 
 exports.accept_request_POST = asyncHandler(async (req, res, next) => {
-  const user1 = await User.findOne(
+  const user = await User.findOne(
     { username: req.params.user },
     { password: 0 }
   )
+    .populate("friends")
     .populate("requestIn")
+    .populate("requestOut")
+    .populate("comments")
     .exec();
-  const user2 = await User.findOne(
+
+  const recipient = await User.findOne(
     {
       username: req.params.recipient,
     },
@@ -48,49 +61,52 @@ exports.accept_request_POST = asyncHandler(async (req, res, next) => {
     .populate("requestOut")
     .exec();
 
-  user1.requestIn = user1.requestIn.filter(
-    (friend) => friend.username !== user2.username
+  user.requestIn = user.requestIn.filter(
+    (friend) => friend.username !== recipient.username
   );
-  user2.requestOut = user2.requestOut.filter(
-    (friend) => friend.username !== user1.username
+  recipient.requestOut = recipient.requestOut.filter(
+    (friend) => friend.username !== user.username
   );
 
-  user1.friends.push(user2);
-  user2.friends.push(user1);
+  user.friends.push(recipient);
+  recipient.friends.push(user);
 
-  await user1.save();
-  await user2.save();
+  await user.save();
+  await recipient.save();
 
-  res.json({ message: "Accepted" });
+  res.json({ message: "Accepted", user });
 });
 
 exports.decline_request_POST = asyncHandler(async (req, res, next) => {
-  const user1 = await User.findOne({ username: req.params.user })
+  const user = await User.findOne({ username: req.params.user });
+  populate("friends")
     .populate("requestIn")
     .populate("requestOut")
+    .populate("comments")
     .exec();
-  const user2 = await User.findOne({
+
+  const recipient = await User.findOne({
     username: req.params.recipient,
   })
     .populate("requestIn")
     .populate("requestOut")
     .exec();
 
-  user1.requestIn = user1.requestIn.filter(
-    (friend) => friend.username !== user2.username
+  user.requestIn = user.requestIn.filter(
+    (friend) => friend.username !== recipient.username
   );
-  user1.requestOut = user1.requestOut.filter(
-    (friend) => friend.username !== user2.username
+  user.requestOut = user.requestOut.filter(
+    (friend) => friend.username !== recipient.username
   );
-  user2.requestOut = user2.requestOut.filter(
-    (friend) => friend.username !== user1.username
+  recipient.requestOut = recipient.requestOut.filter(
+    (friend) => friend.username !== user.username
   );
-  user2.requestIn = user2.requestIn.filter(
-    (friend) => friend.username !== user1.username
+  recipient.requestIn = recipient.requestIn.filter(
+    (friend) => friend.username !== user.username
   );
 
-  await user1.save();
-  await user2.save();
+  await user.save();
+  await recipient.save();
 
-  res.json({ message: "Declined" });
+  res.json({ message: "Declined", user });
 });

@@ -17,8 +17,14 @@ exports.profile_GET = asyncHandler(async (req, res, next) => {
 
 // Remove a friend from the friends list.  Filters out targeted friend from curr user friends list as well as filters out the user from the target's friends lists
 exports.remove_POST = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.user })
+  const user = await User.findOne(
+    { username: req.params.user },
+    { password: 0 }
+  )
     .populate("friends")
+    .populate("requestIn")
+    .populate("requestOut")
+    .populate("comments")
     .exec();
 
   const target = await User.findOne({ username: req.params.friend })
@@ -35,5 +41,5 @@ exports.remove_POST = asyncHandler(async (req, res, next) => {
   user.save();
   target.save();
 
-  res.json({ message: "Friend removed" });
+  res.json({ message: "Friend removed", user });
 });
