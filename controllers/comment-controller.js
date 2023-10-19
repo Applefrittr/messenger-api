@@ -28,7 +28,7 @@ exports.comment_POST = [
             profile: friend.username,
           });
 
-          friend.comments.push(comment);
+          friend.comments.unshift(comment);
           await friend.save();
           await comment.save();
 
