@@ -1,11 +1,13 @@
 const asyncHandler = require("express-async-handler");
+const { body } = require("express-validator");
 const Comment = require("../models/comment.js");
 const jwt = require("jsonwebtoken");
 const handleToken = require("./handle-token");
 const User = require("../models/user");
 
-// Create a new post and add the comment object to the friend's profile.  Protected by jwt
+// Create a new post and add the comment object to the friend's profile.  Input sanitized and protected by jwt
 exports.comment_POST = [
+  body("text").trim().escape(),
   handleToken,
   asyncHandler(async (req, res, next) => {
     jwt.verify(
@@ -24,6 +26,7 @@ exports.comment_POST = [
             author: user.username,
             avatar: user.avatar,
             text: req.body.text,
+            gif: req.body.gif,
             timestamp: new Date(),
             profile: friend.username,
           });

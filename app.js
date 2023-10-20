@@ -1,3 +1,4 @@
+require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -7,9 +8,6 @@ const cors = require("cors");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-
-// Load env variables
-require("dotenv").config();
 
 // connect to MongoDB
 const mongoose = require("mongoose");

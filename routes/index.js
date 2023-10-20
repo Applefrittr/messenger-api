@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const keysController = require("../controllers/keys-controller");
 
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.send("Hello world");
-});
+// GET Giphy API key stored in .env
+router.get("/giphyAPI", keysController.giphyAPI);
 
 module.exports = router;

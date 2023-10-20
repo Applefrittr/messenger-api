@@ -8,6 +8,7 @@ const CommentSchema = new Schema(
     author: { type: String },
     avatar: { type: String },
     text: { type: String },
+    gif: { type: String },
     profile: { type: String },
     timestamp: Date,
   },
