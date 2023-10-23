@@ -1,5 +1,4 @@
 const asyncHandler = require("express-async-handler");
-const Request = require("../models/request.js");
 const User = require("../models/user.js");
 
 // GET all friend request controller

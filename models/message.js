@@ -16,7 +16,7 @@ const MessageSchema = new Schema(
   }
 );
 
-PostSchema.virtual("timestamp_string").get(function () {
+MessageSchema.virtual("timestamp_string").get(function () {
   return DateTime.fromJSDate(this.timestamp).toLocaleString(
     DateTime.DATETIME_MED
   );

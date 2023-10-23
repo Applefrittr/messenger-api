@@ -4,12 +4,10 @@ const userController = require("../controllers/user-controller");
 const requestController = require("../controllers/request-controller");
 const friendController = require("../controllers/friend-controller");
 const commentController = require("../controllers/comment-controller");
+const chatsController = require("../controllers/chats-controller");
 
 // Post(create) new user
 router.post("/create", userController.create);
-
-// Post user log in
-//router.post("/", userController.user_POST);
 
 // GET all users in the database
 router.get("/", userController.users_GET);
@@ -55,5 +53,8 @@ router.delete(
   "/:user/profile/comment/:id",
   commentController.profile_comment_DELETE
 );
+
+// POST a new chat
+router.post("/:user/chats", chatsController.new_chat_POST);
 
 module.exports = router;
