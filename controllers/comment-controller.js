@@ -62,6 +62,7 @@ exports.profile_comment_DELETE = [
             .populate("requestIn")
             .populate("requestOut")
             .populate("comments")
+            .populate("chats")
             .exec();
 
           user.comments = user.comments.filter(

@@ -25,6 +25,7 @@ exports.remove_POST = asyncHandler(async (req, res, next) => {
     .populate("requestIn")
     .populate("requestOut")
     .populate("comments")
+    .populate("chats")
     .exec();
 
   const target = await User.findOne({ username: req.params.friend })

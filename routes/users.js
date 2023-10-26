@@ -54,6 +54,9 @@ router.delete(
   commentController.profile_comment_DELETE
 );
 
+// GET all of user's active chats
+router.get("/:user/chats", chatsController.all_chats_GET);
+
 // POST a new chat
 router.post("/:user/chats", chatsController.new_chat_POST);
 

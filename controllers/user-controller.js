@@ -114,6 +114,7 @@ exports.profile_GET = asyncHandler(async (req, res, next) => {
     .populate("requestIn")
     .populate("requestOut")
     .populate("comments")
+    .populate("chats")
     .exec();
 
   console.log("requesting...");

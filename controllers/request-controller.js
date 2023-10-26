@@ -23,6 +23,7 @@ exports.request_POST = asyncHandler(async (req, res, next) => {
     .populate("requestIn")
     .populate("requestOut")
     .populate("comments")
+    .populate("chats")
     .exec();
 
   const recipient = await User.findOne({
@@ -49,6 +50,7 @@ exports.accept_request_POST = asyncHandler(async (req, res, next) => {
     .populate("requestIn")
     .populate("requestOut")
     .populate("comments")
+    .populate("chats")
     .exec();
 
   const recipient = await User.findOne(
@@ -82,6 +84,7 @@ exports.decline_request_POST = asyncHandler(async (req, res, next) => {
     .populate("requestIn")
     .populate("requestOut")
     .populate("comments")
+    .populate("chats")
     .exec();
 
   const recipient = await User.findOne({
