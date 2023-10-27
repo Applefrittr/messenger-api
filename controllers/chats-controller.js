@@ -72,12 +72,27 @@ exports.new_chat_POST = [
 
           recipients.push(user);
 
-          console.log(recipients);
-
-          const chat = new Chat({
-            users: recipients,
-            messages: [],
+          const usernames = recipients.map((user) => {
+            return user.username;
           });
+
+          let chat;
+
+          if (req.body.chatID) {
+            console.log("Exisiting chat");
+            chat = await Chat.findById(req.body.chatID).exec();
+          } else {
+            console.log("New chat");
+            chat = new Chat({
+              users: recipients,
+              usernames: usernames,
+              messages: [],
+            });
+
+            for (const user of recipients) {
+              user.chats.push(chat);
+            }
+          }
 
           const message = new Message({
             username: req.params.user,
@@ -89,10 +104,8 @@ exports.new_chat_POST = [
           chat.messages.push(message);
 
           for (const user of recipients) {
-            user.chats.push(chat);
             await user.save();
           }
-
           await chat.save();
           await message.save();
 
