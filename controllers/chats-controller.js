@@ -61,6 +61,43 @@ exports.chat_GET = [
   }),
 ];
 
+// POST new message to an existiing chat, return updated chat back to the client
+exports.chat_POST = [
+  handleToken,
+  asyncHandler(async (req, res, next) => {
+    jwt.verify(
+      req.token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, payload) => {
+        if (err) {
+          res.json({ message: "Credentials expired, please login again." });
+        } else {
+          const chat = await Chat.findById(req.params.id)
+            .populate("users")
+            .populate("messages")
+            .exec();
+
+          const message = new Message({
+            username: req.params.user,
+            chat: chat,
+            timestamp: new Date(),
+            text: req.body.text,
+          });
+
+          chat.messages.push(message);
+
+          await chat.save();
+          await message.save();
+
+          res.json({
+            message: "New message POST",
+          });
+        }
+      }
+    );
+  }),
+];
+
 // POST a new chat.  Finds all users passed to the call (2 person or group chat), creates a new Chat object as well as the opening message.
 // Then pushes Chat object to all associated Users and saves all changes to the DB
 exports.new_chat_POST = [
