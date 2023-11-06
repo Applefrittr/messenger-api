@@ -82,6 +82,7 @@ exports.chat_POST = [
             chat: chat,
             timestamp: new Date(),
             text: req.body.text,
+            gif: req.body.gif,
           });
 
           chat.messages.push(message);

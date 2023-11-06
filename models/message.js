@@ -9,6 +9,7 @@ const MessageSchema = new Schema(
     chat: { type: Schema.Types.ObjectId, ref: "Chat" },
     timestamp: { type: Date },
     text: { type: String },
+    gif: { type: String },
   },
   {
     toObject: { virtuals: true },
