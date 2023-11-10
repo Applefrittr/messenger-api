@@ -60,6 +60,9 @@ router.get("/:user/chats", chatsController.all_chats_GET);
 // GET a specific user's chat
 router.get("/:user/chats/:id", chatsController.chat_GET);
 
+// GET a page of messages within a unique chat, pagniating the message history
+router.get("/:user/chats/:id/:page", chatsController.chat_page_GET);
+
 // POST a new message on a specific chat
 router.post("/:user/chats/:id", chatsController.chat_POST);
 

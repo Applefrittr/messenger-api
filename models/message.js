@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const MessageSchema = new Schema(
   {
     username: { type: String, required: true, trim: true },
-    chat: { type: Schema.Types.ObjectId, ref: "Chat" },
+    chat: { type: String },
     timestamp: { type: Date },
     text: { type: String },
     gif: { type: String },

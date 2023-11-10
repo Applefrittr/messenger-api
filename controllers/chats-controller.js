@@ -24,13 +24,12 @@ exports.all_chats_GET = [
 
           const chats = await Promise.all(
             user.chats.map(async (chat) => {
-              return await Chat.findById(chat)
+              return await Chat.findById(chat, { message: 0 })
                 .populate("users")
-                .populate("messages")
+                .populate("latestMsg")
                 .exec();
             })
           );
-
           res.json({ message: "GET all chats", chats });
         }
       }
@@ -49,12 +48,42 @@ exports.chat_GET = [
         if (err) {
           res.json({ message: "Credentials expired, please login again." });
         } else {
+          const chat = await Chat.findById(req.params.id, { messages: 0 })
+            .populate("users")
+            .exec();
+
+          res.json({ message: "GET chat", chat });
+        }
+      }
+    );
+  }),
+];
+
+exports.chat_page_GET = [
+  handleToken,
+  asyncHandler(async (req, res, next) => {
+    jwt.verify(
+      req.token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, payload) => {
+        if (err) {
+          res.json({ message: "Credentials expired, please login again." });
+        } else {
           const chat = await Chat.findById(req.params.id)
             .populate("users")
             .populate("messages")
             .exec();
 
-          res.json({ message: "GET chat", chat });
+          const messages = [...chat.messages]
+            .reverse()
+            .slice((req.params.page - 1) * 20, req.params.page * 20);
+
+          let hasMore;
+          req.params.page * 20 > chat.msgNum
+            ? (hasMore = false)
+            : (hasMore = true);
+
+          res.json({ message: "GET chat", messages, hasMore });
         }
       }
     );
@@ -79,20 +108,20 @@ exports.chat_POST = [
 
           const message = new Message({
             username: req.params.user,
-            chat: chat,
+            chat: chat._id,
             timestamp: new Date(),
             text: req.body.text,
             gif: req.body.gif,
           });
 
           chat.messages.push(message);
+          chat.msgNum++;
+          chat.latestMsg = message;
 
           await chat.save();
           await message.save();
 
-          res.json({
-            message: "New message POST",
-          });
+          res.json({ message });
         }
       }
     );
@@ -116,13 +145,7 @@ exports.new_chat_POST = [
           const user = await User.findOne(
             { username: req.params.user },
             { password: 0 }
-          )
-            .populate("friends")
-            .populate("requestIn")
-            .populate("requestOut")
-            .populate("comments")
-            .populate("chats")
-            .exec();
+          ).exec();
 
           // return an array of Users to add to the chat
           const recipients = await Promise.all(
@@ -148,6 +171,7 @@ exports.new_chat_POST = [
               users: recipients,
               usernames: usernames,
               messages: [],
+              msgNum: 0,
             });
 
             for (const user of recipients) {
@@ -157,12 +181,14 @@ exports.new_chat_POST = [
 
           const message = new Message({
             username: req.params.user,
-            chat: chat,
+            chat: chat._id,
             timestamp: new Date(),
             text: req.body.text,
           });
 
           chat.messages.push(message);
+          chat.msgNum++;
+          chat.latestMsg = message;
 
           for (const user of recipients) {
             await user.save();
