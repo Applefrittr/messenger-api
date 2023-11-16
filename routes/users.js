@@ -69,4 +69,11 @@ router.post("/:user/chats/:id", chatsController.chat_POST);
 // POST a new chat
 router.post("/:user/chats", chatsController.new_chat_POST);
 
+router.get("/error", (req, res, next) => {
+  try {
+    throw new Error();
+  } catch (error) {
+    next(error);
+  }
+});
 module.exports = router;

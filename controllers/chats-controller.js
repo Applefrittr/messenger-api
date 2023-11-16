@@ -37,7 +37,7 @@ exports.all_chats_GET = [
   }),
 ];
 
-//GET a specific chat by the ID passed into the uri params from the front end
+// GET a specific chat by the ID passed into the uri params from the front end, excluding all messages (unique route and controller to paginate message data)
 exports.chat_GET = [
   handleToken,
   asyncHandler(async (req, res, next) => {
@@ -59,6 +59,7 @@ exports.chat_GET = [
   }),
 ];
 
+// GET new page of chat messages, paginating the message data
 exports.chat_page_GET = [
   handleToken,
   asyncHandler(async (req, res, next) => {
@@ -76,10 +77,10 @@ exports.chat_page_GET = [
 
           const messages = [...chat.messages]
             .reverse()
-            .slice((req.params.page - 1) * 20, req.params.page * 20);
+            .slice((req.params.page - 1) * 40, req.params.page * 40);
 
           let hasMore;
-          req.params.page * 20 > chat.msgNum
+          req.params.page * 40 > chat.msgNum
             ? (hasMore = false)
             : (hasMore = true);
 
