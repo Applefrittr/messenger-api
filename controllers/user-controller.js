@@ -52,7 +52,20 @@ exports.create = [
 
 // GET all users in the database, returns back to front end
 exports.users_GET = asyncHandler(async (req, res, next) => {
-  const users = await User.find().exec();
+  const users = await User.find(
+    {},
+    {
+      password: 0,
+      personal: 0,
+      birthday: 0,
+      chats: 0,
+      friends: 0,
+      country: 0,
+      requestIn: 0,
+      requestOut: 0,
+      comments: 0,
+    }
+  ).exec();
 
   res.json({ users });
 });
@@ -125,26 +138,16 @@ exports.profile_GET = asyncHandler(async (req, res, next) => {
 exports.profile_POST = [
   handleToken,
   asyncHandler(async (req, res, next) => {
-    jwt.verify(
-      req.token,
-      process.env.ACCESS_TOKEN_SECRET,
-      async (err, payload) => {
-        if (err) {
-          res.json({ message: "Credentials expired, please login again." });
-        } else {
-          const user = await User.findOne({ username: req.params.user }).exec();
+    const user = await User.findOne({ username: req.params.user }).exec();
 
-          user.country = req.body.country;
-          user.personal = req.body.personal;
-          user.birthday = req.body.birthday;
-          user.avatar = req.body.avatar;
+    user.country = req.body.country;
+    user.personal = req.body.personal;
+    user.birthday = req.body.birthday;
+    user.avatar = req.body.avatar;
 
-          console.log(user);
+    console.log(user);
 
-          await user.save();
-          res.json({ message: "edits submitted" });
-        }
-      }
-    );
+    await user.save();
+    res.json({ message: "edits submitted" });
   }),
 ];
