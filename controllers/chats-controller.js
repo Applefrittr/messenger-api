@@ -19,6 +19,10 @@ exports.all_chats_GET = [
         return await Chat.findById(chat, { message: 0 })
           .populate("users")
           .populate("latestMsg")
+          .populate({
+            path: "messages",
+            options: { limit: 20, sort: { timestamp: -1 } },
+          })
           .exec();
       })
     );
