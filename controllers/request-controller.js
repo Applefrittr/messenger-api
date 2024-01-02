@@ -88,8 +88,8 @@ exports.accept_request_POST = [
 exports.decline_request_POST = [
   handleToken,
   asyncHandler(async (req, res, next) => {
-    const user = await User.findOne({ username: req.params.user });
-    populate("friends")
+    const user = await User.findOne({ username: req.params.user })
+      .populate("friends")
       .populate("requestIn")
       .populate("requestOut")
       .populate("comments")
