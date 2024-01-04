@@ -18,6 +18,7 @@ const UserSchema = new Schema(
     requestIn: [{ type: Schema.Types.ObjectId, ref: "User" }],
     requestOut: [{ type: Schema.Types.ObjectId, ref: "User" }],
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+    online: { type: Boolean },
   },
   {
     toObject: { virtuals: true },

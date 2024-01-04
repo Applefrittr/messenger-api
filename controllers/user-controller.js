@@ -96,6 +96,9 @@ exports.login_POST = [
     if (!errors.isEmpty()) {
       res.json({ errors: errors.array() });
     } else {
+      const userUpdate = await User.findOne({
+        username: req.body.username,
+      }).exec();
       const user = await User.findOne({ username: req.body.username }) // Query the user and call lean() to convert to regular JS object to prep for JWT serialization
         .lean()
         .exec();
@@ -109,6 +112,10 @@ exports.login_POST = [
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: 60 * 60 * 24,
         });
+        userUpdate.online = true;
+
+        await userUpdate.save();
+
         res.json({ message: "User logged in", accessToken });
       } else {
         res.json({ errors: [{ msg: "Incorrect Password" }] });
@@ -116,6 +123,15 @@ exports.login_POST = [
     }
   }),
 ];
+
+exports.logout_POST = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ username: req.params.user }).exec();
+
+  user.online = false;
+  await user.save();
+
+  res.end();
+});
 
 // GET specific user profile details
 exports.profile_GET = asyncHandler(async (req, res, next) => {

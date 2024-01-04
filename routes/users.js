@@ -18,6 +18,9 @@ router.get("/login", userController.login_GET);
 // POST user login
 router.post("/login", userController.login_POST);
 
+//POST user logout
+router.post("/:user/logout", userController.logout_POST);
+
 // GET user profile
 router.get("/:user/profile", userController.profile_GET);
 
