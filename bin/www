@@ -8,7 +8,8 @@ const app = require("../app");
 const debug = require("debug")("messenger-api:server");
 const http = require("http");
 const { Server } = require("socket.io");
-const mount = require("../socketapi");
+const connectionHandler = require("../sockets/connection-handler");
+const chatHandler = require("../sockets/chat-handler");
 
 /**
  * Get port from environment and store in Express.
@@ -24,20 +25,20 @@ app.set("port", port);
 const server = http.createServer(app);
 
 // Mount socketapi to server
-//socketapi.io.attach(server);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:3000",
   },
 });
 
-// CREATE a seperate module for all event handlers!!!!!!
-io.on("connection", (socket) => {
-  console.log("new user");
-  socket.on("hello", (username) => {
-    console.log(username, " connected!");
-  });
-});
+// Register the event handlers in a callback to be fired once a new connection is made
+const onConnection = (socket) => {
+  connectionHandler(io, socket);
+  chatHandler(io, socket);
+};
+
+// When a new conenction is made, mount all event handlers to the new socket
+io.on("connection", onConnection);
 
 /**
  * Listen on provided port, on all network interfaces.
