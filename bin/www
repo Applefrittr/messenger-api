@@ -8,8 +8,8 @@ const app = require("../app");
 const debug = require("debug")("messenger-api:server");
 const http = require("http");
 const { Server } = require("socket.io");
-const connectionHandler = require("../sockets/connection-handler");
-const chatHandler = require("../sockets/chat-handler");
+const connectionHandler = require("../WSEventHandlers/connection-handler");
+const chatHandler = require("../WSEventHandlers/chat-handler");
 
 /**
  * Get port from environment and store in Express.
