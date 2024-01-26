@@ -23,6 +23,32 @@ const chatHandler = (io, socket) => {
     callback({ chats });
   });
 
+  // Chat listener, returns the Chat instance back to client via chat ID
+  socket.on("get chat", async (chatID, callback) => {
+    const chat = await Chat.findById(chatID, { messages: 0 })
+      .populate("users")
+      .exec();
+
+    callback({ chat });
+  });
+
+  // Get Chat page listener, paginates the message data in the Chat object and returns a chunk back tot he client
+  socket.on("get chat page", async (chatID, pageNum, callback) => {
+    const chat = await Chat.findById(chatID)
+      .populate("users")
+      .populate("messages")
+      .exec();
+
+    const messages = [...chat.messages]
+      .reverse()
+      .slice((pageNum - 1) * 40, pageNum * 40);
+
+    let hasMore;
+    pageNum * 40 > chat.msgNum ? (hasMore = false) : (hasMore = true);
+
+    callback({ messages, hasMore });
+  });
+
   // New Message listener, fires once a new message is emitted by a client and then responds with the new message object
   socket.on("send msg", async (user, chatID, msgObj, callback) => {
     console.log(msgObj.text);

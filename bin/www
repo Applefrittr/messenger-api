@@ -10,6 +10,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const connectionHandler = require("../WSEventHandlers/connection-handler");
 const chatHandler = require("../WSEventHandlers/chat-handler");
+const friendHandler = require("../WSEventHandlers/friend-handler");
 
 /**
  * Get port from environment and store in Express.
@@ -35,6 +36,7 @@ const io = new Server(server, {
 const onConnection = (socket) => {
   connectionHandler(io, socket);
   chatHandler(io, socket);
+  friendHandler(io, socket);
 };
 
 // When a new conenction is made, mount all event handlers to the new socket
