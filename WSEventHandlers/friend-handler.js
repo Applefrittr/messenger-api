@@ -1,12 +1,40 @@
 const User = require("../models/user");
 
 const friendHandler = (io, socket) => {
+  socket.on("get users", async (callback) => {
+    const users = await User.find(
+      {},
+      {
+        password: 0,
+        personal: 0,
+        birthday: 0,
+        chats: 0,
+        friends: 0,
+        country: 0,
+        requestIn: 0,
+        requestOut: 0,
+        comments: 0,
+      }
+    ).exec();
+
+    callback({ users });
+  });
+
   socket.on("get friends", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("friends")
       .exec();
 
     callback({ friends: user.friends });
+  });
+
+  socket.on("get profile", async (username, callback) => {
+    const user = await User.findOne({ username: username }, { password: 0 })
+      .populate("friends")
+      .populate("comments")
+      .exec();
+
+    callback({ user });
   });
 
   socket.on("get requests", async (username, callback) => {
