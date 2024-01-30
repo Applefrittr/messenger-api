@@ -1,6 +1,7 @@
 const User = require("../models/user");
 
 const friendHandler = (io, socket) => {
+  // Get ALL users.  Passed to client for the search component.
   socket.on("get users", async (callback) => {
     const users = await User.find(
       {},
@@ -20,6 +21,7 @@ const friendHandler = (io, socket) => {
     callback({ users });
   });
 
+  // Get friends listeners returns all users in the friend's list of the current user
   socket.on("get friends", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("friends")
@@ -28,6 +30,7 @@ const friendHandler = (io, socket) => {
     callback({ friends: user.friends });
   });
 
+  // Returns a specific profile back to client based on the passed username
   socket.on("get profile", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("friends")
@@ -37,6 +40,7 @@ const friendHandler = (io, socket) => {
     callback({ user });
   });
 
+  // Returns all pending incoming and outgoing friends requests of the current user
   socket.on("get requests", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("requestIn")
@@ -46,6 +50,7 @@ const friendHandler = (io, socket) => {
     callback({ incoming: user.requestIn, outgoing: user.requestOut });
   });
 
+  // New request updates the current user and recipient models in the DB, then passes the request arrays back to the client (both user and recipient)
   socket.on("new request", async (username, recipientUser, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("requestIn")
@@ -69,6 +74,7 @@ const friendHandler = (io, socket) => {
     callback({ requests: user.requestOut });
   });
 
+  // Remove request updates both user models int he DB, then passes back updated lists back to client (user and recipient)
   socket.on("remove request", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
       .populate("requestIn")
@@ -105,6 +111,7 @@ const friendHandler = (io, socket) => {
     callback({ incoming: user.requestIn, outgoing: user.requestOut });
   });
 
+  // Updates both user models in DB then passes updates back to clients for UI re-rendering
   socket.on("accept request", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
       .populate("requestIn")
@@ -139,6 +146,8 @@ const friendHandler = (io, socket) => {
     callback({ incoming: user.requestIn, friends: user.friends });
   });
 
+  // Remove friend removes user1 from user2's friends list and vice versa.  DB updates are saved then both user1 and user2 updated lists are
+  // passed back to the client for UI re-renders
   socket.on("remove friend", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
       .populate("friends")
