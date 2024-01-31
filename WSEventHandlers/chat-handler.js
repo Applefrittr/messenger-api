@@ -9,7 +9,7 @@ const chatHandler = (io, socket) => {
 
     const chats = await Promise.all(
       user.chats.map(async (chat) => {
-        return await Chat.findById(chat, { message: 0 })
+        return await Chat.findById(chat)
           .populate("users")
           .populate("latestMsg")
           .populate({
@@ -49,12 +49,17 @@ const chatHandler = (io, socket) => {
     callback({ messages, hasMore });
   });
 
-  // New Message listener, fires once a new message is emitted by a client and then responds with the new message object
+  // New Message listener, fires once a new message is emitted by a client and then responds with the new message object.
+  // Also emits a notification msg as well as the updated chat obj to be rendered in the client
   socket.on("send msg", async (user, chatID, msgObj, callback) => {
     console.log(msgObj.text);
     const chat = await Chat.findById(chatID)
       .populate("users")
-      .populate("messages")
+      .populate({
+        path: "messages",
+        options: { limit: 20, sort: { timestamp: -1 } },
+      })
+      .populate("latestMsg")
       .exec();
 
     const message = new Message({
@@ -76,7 +81,11 @@ const chatHandler = (io, socket) => {
     const recipients = chat.usernames.filter((username) => username !== user);
 
     console.log(recipients);
-    socket.to(recipients).emit("new msg", message);
+    socket.to(recipients).emit("new msg", message, chatID);
+    socket
+      .to(recipients)
+      .emit("notification", `New message from ${user}`, chatID);
+    socket.to(recipients).emit("update chat list", chat);
 
     callback({ message });
   });
