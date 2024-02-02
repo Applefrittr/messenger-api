@@ -24,6 +24,13 @@ const commentHandler = (io, socket) => {
     await comment.save();
 
     socket.to(friend.username).emit("new comment", comment);
+    socket
+      .to(friend.username)
+      .emit(
+        "notification",
+        { msg: `${username} commented on your profile`, type: "comment" },
+        null
+      );
 
     callback({ comment });
   });

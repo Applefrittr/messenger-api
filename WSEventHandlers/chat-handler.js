@@ -84,7 +84,11 @@ const chatHandler = (io, socket) => {
     socket.to(recipients).emit("new msg", message, chatID);
     socket
       .to(recipients)
-      .emit("notification", `New message from ${user}`, chatID);
+      .emit(
+        "notification",
+        { msg: `New message from ${user}`, type: "message" },
+        chatID
+      );
     socket.to(recipients).emit("update chat list", chat);
 
     callback({ message });

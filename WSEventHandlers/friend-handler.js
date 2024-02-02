@@ -70,6 +70,13 @@ const friendHandler = (io, socket) => {
     await recipient.save();
 
     socket.to(recipient.username).emit("incoming request", recipient.requestIn);
+    socket
+      .to(recipient.username)
+      .emit(
+        "notification",
+        { msg: `Friend request recieved from ${username}`, type: "request" },
+        null
+      );
 
     callback({ requests: user.requestOut });
   });
