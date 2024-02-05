@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/user");
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 
 // Return a selected friend to the front end to display friend profile
 exports.profile_GET = [

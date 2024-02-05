@@ -3,7 +3,7 @@ const { body, validationResult } = require("express-validator");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 
 // Create (POST) a new user with a hashed password using bcrypt
 exports.create = [

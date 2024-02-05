@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { body } = require("express-validator");
 const Comment = require("../models/comment.js");
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 const User = require("../models/user");
 
 // Create a new post and add the comment object to the friend's profile.  Input sanitized and protected by jwt

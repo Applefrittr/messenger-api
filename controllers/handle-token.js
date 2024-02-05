@@ -33,4 +33,23 @@ function handleToken(req, res, next) {
   // }
 }
 
-module.exports = handleToken;
+const handleTokenWS = (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, payload) => {
+      if (err) {
+        const error = new Error("Credentials expired, please login again");
+        error.status = 401;
+        next(error);
+      } else {
+        console.log("jwt verified!");
+        next();
+      }
+    });
+  } catch (error) {
+    next(new Error("Forbidden!"));
+  }
+};
+
+module.exports = { handleToken, handleTokenWS };

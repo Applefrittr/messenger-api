@@ -93,6 +93,74 @@ const chatHandler = (io, socket) => {
 
     callback({ message });
   });
+
+  socket.on("send new message", async (username, msgObj, callback) => {
+    const user = await User.findOne(
+      { username: username },
+      { password: 0 }
+    ).exec();
+
+    // return an array of Users to add to the chat
+    const users = await Promise.all(
+      msgObj.users.map(async (user) => {
+        return await User.findOne({ username: user }).exec();
+      })
+    );
+
+    users.push(user);
+
+    const usernames = users.map((user) => {
+      return user.username;
+    });
+
+    const recipients = usernames.filter((user) => user !== username);
+
+    let chat;
+
+    if (msgObj.chatID) {
+      console.log("Exisiting chat");
+      chat = await Chat.findById(msgObj.chatID).exec();
+    } else {
+      console.log("New chat");
+      chat = new Chat({
+        users: users,
+        usernames: usernames,
+        messages: [],
+        msgNum: 0,
+      });
+
+      for (const user of users) {
+        user.chats.push(chat);
+      }
+    }
+
+    const message = new Message({
+      username: username,
+      chat: chat._id,
+      timestamp: new Date(),
+      text: msgObj.text,
+    });
+
+    chat.messages.push(message);
+    chat.msgNum++;
+    chat.latestMsg = message;
+
+    for (const user of users) {
+      await user.save();
+    }
+    await chat.save();
+    await message.save();
+
+    socket.to(usernames).emit("update chat list", chat);
+    socket
+      .to(recipients)
+      .emit(
+        "notification",
+        { msg: `New message from ${username}`, type: "message" },
+        chat._id
+      );
+    callback({ id: chat._id });
+  });
 };
 
 module.exports = chatHandler;

@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/user.js");
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 
 // GET all friend request controller
 exports.request_GET = asyncHandler(async (req, res, next) => {

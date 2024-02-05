@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const { body } = require("express-validator");
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 const User = require("../models/user");
 const Chat = require("../models/chat");
 const Message = require("../models/message");

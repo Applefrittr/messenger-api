@@ -1,4 +1,4 @@
-const handleToken = require("./handle-token");
+const { handleToken } = require("./handle-token");
 const asyncHandler = require("express-async-handler");
 
 exports.giphyAPI = [
