@@ -54,13 +54,19 @@ const chatHandler = (io, socket) => {
   socket.on("send msg", async (user, chatID, msgObj, callback) => {
     console.log(msgObj.text);
     const chat = await Chat.findById(chatID)
-      .populate("users")
+      .populate({ path: "users", populate: { path: "chats" } })
       .populate({
         path: "messages",
         options: { limit: 20, sort: { timestamp: -1 } },
       })
       .populate("latestMsg")
       .exec();
+
+    // const users = await Promise.all(
+    //   chat.users.map(async (user) => {
+    //     return await User.findById(user._id).populate("chats").exec();
+    //   })
+    // );
 
     const message = new Message({
       username: user,
@@ -73,6 +79,12 @@ const chatHandler = (io, socket) => {
     chat.messages.push(message);
     chat.msgNum++;
     chat.latestMsg = message;
+
+    chat.users.forEach(async (user) => {
+      user.chats = user.chats.filter((chatObj) => chatObj.id !== chat.id);
+      user.chats.unshift(chat);
+      await user.save();
+    });
 
     await chat.save();
     await message.save();
@@ -89,7 +101,7 @@ const chatHandler = (io, socket) => {
         { msg: `New message from ${user}`, type: "message" },
         chatID
       );
-    socket.to(recipients).emit("update chat list", chat);
+    //socket.to(recipients).emit("update chat list", chat);
 
     callback({ message });
   });
@@ -128,10 +140,6 @@ const chatHandler = (io, socket) => {
         messages: [],
         msgNum: 0,
       });
-
-      for (const user of users) {
-        user.chats.push(chat);
-      }
     }
 
     const message = new Message({
@@ -139,11 +147,18 @@ const chatHandler = (io, socket) => {
       chat: chat._id,
       timestamp: new Date(),
       text: msgObj.text,
+      gif: msgObj.gif,
     });
 
     chat.messages.push(message);
     chat.msgNum++;
     chat.latestMsg = message;
+
+    //socket.to(usernames).emit("update chat list", chat);
+
+    for (const user of users) {
+      user.chats.push(chat);
+    }
 
     for (const user of users) {
       await user.save();
@@ -151,7 +166,6 @@ const chatHandler = (io, socket) => {
     await chat.save();
     await message.save();
 
-    socket.to(usernames).emit("update chat list", chat);
     socket
       .to(recipients)
       .emit(
