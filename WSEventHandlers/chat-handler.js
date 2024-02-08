@@ -62,12 +62,6 @@ const chatHandler = (io, socket) => {
       .populate("latestMsg")
       .exec();
 
-    // const users = await Promise.all(
-    //   chat.users.map(async (user) => {
-    //     return await User.findById(user._id).populate("chats").exec();
-    //   })
-    // );
-
     const message = new Message({
       username: user,
       chat: chat._id,
@@ -101,21 +95,21 @@ const chatHandler = (io, socket) => {
         { msg: `New message from ${user}`, type: "message" },
         chatID
       );
-    //socket.to(recipients).emit("update chat list", chat);
+
+    socket.to(recipients).emit("update chat list");
 
     callback({ message });
   });
 
   socket.on("send new message", async (username, msgObj, callback) => {
-    const user = await User.findOne(
-      { username: username },
-      { password: 0 }
-    ).exec();
+    const user = await User.findOne({ username: username }, { password: 0 })
+      .populate("chats")
+      .exec();
 
     // return an array of Users to add to the chat
     const users = await Promise.all(
       msgObj.users.map(async (user) => {
-        return await User.findOne({ username: user }).exec();
+        return await User.findOne({ username: user }).populate("chats").exec();
       })
     );
 
@@ -132,6 +126,11 @@ const chatHandler = (io, socket) => {
     if (msgObj.chatID) {
       console.log("Exisiting chat");
       chat = await Chat.findById(msgObj.chatID).exec();
+
+      users.forEach((user) => {
+        user.chats = user.chats.filter((chatObj) => chatObj.id !== chat.id);
+        user.chats.unshift(chat);
+      });
     } else {
       console.log("New chat");
       chat = new Chat({
@@ -140,6 +139,10 @@ const chatHandler = (io, socket) => {
         messages: [],
         msgNum: 0,
       });
+
+      for (const user of users) {
+        user.chats.unshift(chat);
+      }
     }
 
     const message = new Message({
@@ -154,12 +157,6 @@ const chatHandler = (io, socket) => {
     chat.msgNum++;
     chat.latestMsg = message;
 
-    //socket.to(usernames).emit("update chat list", chat);
-
-    for (const user of users) {
-      user.chats.push(chat);
-    }
-
     for (const user of users) {
       await user.save();
     }
@@ -173,7 +170,18 @@ const chatHandler = (io, socket) => {
         { msg: `New message from ${username}`, type: "message" },
         chat._id
       );
+
+    socket.to(usernames).emit("update chat list");
+
     callback({ id: chat._id });
+  });
+
+  socket.on("user typing", async (username, chatID) => {
+    const chat = await Chat.findById(chatID).exec();
+
+    const recipients = chat.usernames.filter((user) => user !== username);
+
+    socket.to(recipients).emit("user typing", username);
   });
 };
 
