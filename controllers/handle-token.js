@@ -4,33 +4,32 @@ const jwt = require("jsonwebtoken");
 function handleToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
 
-  // if (bearerHeader) {
-  try {
-    const bearer = bearerHeader.split(" ");
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
+  if (bearerHeader) {
+    try {
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
 
-    jwt.verify(
-      req.token,
-      process.env.ACCESS_TOKEN_SECRET,
-      async (err, payload) => {
-        if (err) {
-          const error = new Error("Credentials expired, please login again");
-          error.status = 401;
-          next(error);
-        } else {
-          //console.log("jwt verified");
-          next();
+      jwt.verify(
+        req.token,
+        process.env.ACCESS_TOKEN_SECRET,
+        async (err, payload) => {
+          if (err) {
+            const error = new Error("Credentials expired, please login again");
+            error.status = 401;
+            next(error);
+          } else {
+            //console.log("jwt verified");
+            next();
+          }
         }
-      }
-    );
-  } catch (error) {
-    next(new Error("Forbidden!"));
+      );
+    } catch (error) {
+      next(new Error("Forbidden!"));
+    }
+  } else {
+    res.json({ message: "No current user, Forbidden" });
   }
-
-  // } else {
-  //res.json({ message: "No current user, Forbidden" });
-  // }
 }
 
 const handleTokenWS = (socket, next) => {
@@ -44,6 +43,7 @@ const handleTokenWS = (socket, next) => {
         next(error);
       } else {
         console.log("jwt verified!");
+        console.log(socket.id, socket.rooms);
         next();
       }
     });

@@ -32,22 +32,27 @@ const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
   },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
 });
 
 // set up a JWT verify middleware to verify every socket connection to server before listeners are mounted
 io.use(handleTokenWS);
 
-// Register the event handlers in a callback to be fired once a new connection is made
-const onConnection = (socket) => {
-  // console.log(socket.handshake.auth);
-  connectionHandler(io, socket);
-  chatHandler(io, socket);
-  friendHandler(io, socket);
-  commentHandler(io, socket);
-};
-
 // When a new conenction is made, mount all event handlers to the new socket
-io.on("connection", onConnection);
+io.on("connection", (socket) => {
+  if (socket.recovered) {
+    console.log("connection recovered", socket.id, socket.rooms);
+  } else {
+    connectionHandler(socket);
+    chatHandler(socket);
+    friendHandler(socket);
+    commentHandler(socket);
+  }
+  console.log(socket.id, socket.rooms);
+});
 
 /**
  * Listen on provided port, on all network interfaces.

@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const Comment = require("../models/comment");
 
-const commentHandler = (io, socket) => {
+const commentHandler = (socket) => {
   // New comment listener.  When a new comment is recieved from the front end, updates DB, emits the new comment to the recipient user, and then response to the
   // current user w/ the comment to update UI
   socket.on("post comment", async (username, recipient, content, callback) => {

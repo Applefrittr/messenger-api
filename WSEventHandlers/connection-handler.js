@@ -1,12 +1,14 @@
-const connectionHandler = (io, socket) => {
+const connectionHandler = (socket) => {
   socket.on("hello", (username) => {
-    console.log(username, "conneced!");
+    console.log(username, "connected!");
     socket.join(username);
     console.log(socket.id, socket.rooms);
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", (reason, description) => {
     console.log("user disconnected");
+    console.log(reason);
+    console.log(description);
   });
 };
 

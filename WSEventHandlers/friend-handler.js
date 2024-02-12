@@ -1,6 +1,6 @@
 const User = require("../models/user");
 
-const friendHandler = (io, socket) => {
+const friendHandler = (socket) => {
   // Get ALL users.  Passed to client for the search component.
   socket.on("get users", async (callback) => {
     const users = await User.find(

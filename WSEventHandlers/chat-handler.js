@@ -2,7 +2,7 @@ const User = require("../models/user");
 const Chat = require("../models/chat");
 const Message = require("../models/message");
 
-const chatHandler = (io, socket) => {
+const chatHandler = (socket) => {
   // Get all chat listener, awaits incoming request from client and responds with all chats for the current user
   socket.on("get all chats", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 });
