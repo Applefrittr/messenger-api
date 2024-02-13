@@ -8,6 +8,7 @@ const chatSchema = new Schema({
   messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
   msgNum: { type: Number },
   latestMsg: { type: Schema.Types.ObjectId, ref: "Message" },
+  newMsgCounter: [{ user: { type: String }, unread: { type: Number } }],
 });
 
 module.exports = mongoose.model("Chat", chatSchema);

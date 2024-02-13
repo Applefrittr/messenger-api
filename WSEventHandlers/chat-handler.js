@@ -32,6 +32,19 @@ const chatHandler = (socket) => {
     callback({ chat });
   });
 
+  // update messages for user, setting unread counter to 0
+  socket.on("read messages", async (chatID, username) => {
+    const chat = await Chat.findById(chatID, { messages: 0 }).exec();
+
+    if (chat.newMsgCounter) {
+      const unreadObj = chat.newMsgCounter.find((obj) => obj.user === username);
+      if (unreadObj && unreadObj.unread > 0) {
+        unreadObj.unread = 0;
+        await chat.save();
+      }
+    }
+  });
+
   // Get Chat page listener, paginates the message data in the Chat object and returns a chunk back tot he client
   socket.on("get chat page", async (chatID, pageNum, callback) => {
     const chat = await Chat.findById(chatID)
@@ -62,12 +75,27 @@ const chatHandler = (socket) => {
       .populate("latestMsg")
       .exec();
 
+    // filter out recipients from chat.username array
+    const recipients = chat.usernames.filter((username) => username !== user);
+
     const message = new Message({
       username: user,
       chat: chat._id,
       timestamp: new Date(),
       text: msgObj.text,
       gif: msgObj.gif,
+    });
+
+    recipients.forEach((username) => {
+      const counterObj = chat.newMsgCounter.find(
+        (obj) => obj.user === username
+      );
+
+      if (counterObj) {
+        counterObj.unread = counterObj.unread + 1;
+      } else {
+        chat.newMsgCounter.push({ user: username, unread: 1 });
+      }
     });
 
     chat.messages.push(message);
@@ -83,10 +111,6 @@ const chatHandler = (socket) => {
     await chat.save();
     await message.save();
 
-    // filter out recipients from chat.username array then emit the new message to each user
-    const recipients = chat.usernames.filter((username) => username !== user);
-
-    console.log(recipients);
     socket.to(recipients).emit("new msg", message, chatID);
     socket
       .to(recipients)
@@ -101,6 +125,8 @@ const chatHandler = (socket) => {
     callback({ message });
   });
 
+  // Listener is fired when client sends message using the New Message functionality.  Can send a message to an exising chat OR start a new
+  // chat entirely.  Emits notifications to all recipients and updates chat lists respectively
   socket.on("send new message", async (username, msgObj, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
       .populate("chats")
@@ -151,6 +177,18 @@ const chatHandler = (socket) => {
       timestamp: new Date(),
       text: msgObj.text,
       gif: msgObj.gif,
+    });
+
+    recipients.forEach((username) => {
+      const counterObj = chat.newMsgCounter.find(
+        (obj) => obj.user === username
+      );
+
+      if (counterObj) {
+        counterObj.unread = counterObj.unread + 1;
+      } else {
+        chat.newMsgCounter.push({ user: username, unread: 1 });
+      }
     });
 
     chat.messages.push(message);
