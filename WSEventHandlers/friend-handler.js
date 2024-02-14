@@ -24,7 +24,10 @@ const friendHandler = (socket) => {
   // Get friends listeners returns all users in the friend's list of the current user
   socket.on("get friends", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
-      .populate("friends")
+      .populate({
+        path: "friends",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     callback({ friends: user.friends });
@@ -33,7 +36,10 @@ const friendHandler = (socket) => {
   // Returns a specific profile back to client based on the passed username
   socket.on("get profile", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
-      .populate("friends")
+      .populate({
+        path: "friends",
+        options: { sort: { username: -1 } },
+      })
       .populate("comments")
       .exec();
 
@@ -43,8 +49,14 @@ const friendHandler = (socket) => {
   // Returns all pending incoming and outgoing friends requests of the current user
   socket.on("get requests", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
-      .populate("requestIn")
-      .populate("requestOut")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     callback({ incoming: user.requestIn, outgoing: user.requestOut });
@@ -53,14 +65,23 @@ const friendHandler = (socket) => {
   // New request updates the current user and recipient models in the DB, then passes the request arrays back to the client (both user and recipient)
   socket.on("new request", async (username, recipientUser, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 })
-      .populate("requestIn")
-      .populate("requestOut")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     const recipient = await User.findOne({
       username: recipientUser,
     })
-      .populate("requestIn")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     user.requestOut.push(recipient);
@@ -84,15 +105,27 @@ const friendHandler = (socket) => {
   // Remove request updates both user models int he DB, then passes back updated lists back to client (user and recipient)
   socket.on("remove request", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
-      .populate("requestIn")
-      .populate("requestOut")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     const recipient = await User.findOne({
       username: user2,
     })
-      .populate("requestIn")
-      .populate("requestOut")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
       .exec();
 
     user.requestIn = user.requestIn.filter(
@@ -121,16 +154,31 @@ const friendHandler = (socket) => {
   // Updates both user models in DB then passes updates back to clients for UI re-rendering
   socket.on("accept request", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
-      .populate("requestIn")
-      .populate("requestOut")
-      .populate("friends")
+      .populate({
+        path: "requestIn",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "friends",
+        options: { sort: { username: -1 } },
+      })
       .exec();
 
     const recipient = await User.findOne({
       username: user2,
     })
-      .populate("requestOut")
-      .populate("friends")
+      .populate({
+        path: "requestOut",
+        options: { sort: { username: 1 } },
+      })
+      .populate({
+        path: "friends",
+        options: { sort: { username: -1 } },
+      })
       .exec();
 
     user.requestIn = user.requestIn.filter(
@@ -157,11 +205,17 @@ const friendHandler = (socket) => {
   // passed back to the client for UI re-renders
   socket.on("remove friend", async (user1, user2, callback) => {
     const user = await User.findOne({ username: user1 })
-      .populate("friends")
+      .populate({
+        path: "friends",
+        options: { sort: { username: -1 } },
+      })
       .exec();
 
     const target = await User.findOne({ username: user2 })
-      .populate("friends")
+      .populate({
+        path: "friends",
+        options: { sort: { username: -1 } },
+      })
       .exec();
 
     user.friends = user.friends.filter(

@@ -100,6 +100,7 @@ exports.login_POST = [
         username: req.body.username,
       }).exec();
       const user = await User.findOne({ username: req.body.username }) // Query the user and call lean() to convert to regular JS object to prep for JWT serialization
+        .select("+password")
         .lean()
         .exec();
       if (!user) {
@@ -135,13 +136,19 @@ exports.logout_POST = asyncHandler(async (req, res, next) => {
 
 // GET specific user profile details
 exports.profile_GET = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne(
-    { username: req.params.user },
-    { password: 0 }
-  )
-    .populate("friends")
-    .populate("requestIn")
-    .populate("requestOut")
+  const user = await User.findOne({ username: req.params.user })
+    .populate({
+      path: "friends",
+      options: { sort: { username: 1 } },
+    })
+    .populate({
+      path: "requestIn",
+      options: { sort: { username: 1 } },
+    })
+    .populate({
+      path: "requestOut",
+      options: { sort: { username: 1 } },
+    })
     .populate("comments")
     .populate("chats")
     .exec();
