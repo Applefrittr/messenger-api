@@ -64,7 +64,7 @@ const chatHandler = (socket) => {
 
   // New Message listener, fires once a new message is emitted by a client and then responds with the new message object.
   // Also emits a notification msg as well as the updated chat obj to be rendered in the client
-  socket.on("send msg", async (user, chatID, msgObj, callback) => {
+  socket.on("send msg", async (user, chatID, msgObj, avatar, callback) => {
     console.log(msgObj.text);
     const chat = await Chat.findById(chatID)
       .populate({ path: "users", populate: { path: "chats" } })
@@ -80,10 +80,12 @@ const chatHandler = (socket) => {
 
     const message = new Message({
       username: user,
+      avatar: avatar,
       chat: chat._id,
       timestamp: new Date(),
       text: msgObj.text,
       gif: msgObj.gif,
+      groupChat: chat.groupChat ? true : false,
     });
 
     recipients.forEach((username) => {
@@ -164,6 +166,7 @@ const chatHandler = (socket) => {
         usernames: usernames,
         messages: [],
         msgNum: 0,
+        groupChat: users.length > 2 ? true : false,
       });
 
       for (const user of users) {
@@ -173,10 +176,12 @@ const chatHandler = (socket) => {
 
     const message = new Message({
       username: username,
+      avatar: user.avatar,
       chat: chat._id,
       timestamp: new Date(),
       text: msgObj.text,
       gif: msgObj.gif,
+      groupChat: users.length > 2 ? true : false,
     });
 
     recipients.forEach((username) => {
