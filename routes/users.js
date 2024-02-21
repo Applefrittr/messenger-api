@@ -5,6 +5,7 @@ const requestController = require("../controllers/request-controller");
 const friendController = require("../controllers/friend-controller");
 const commentController = require("../controllers/comment-controller");
 const chatsController = require("../controllers/chats-controller");
+const https = require("https");
 
 // Post(create) new user
 router.post("/create", userController.create);
@@ -78,5 +79,33 @@ router.get("/error", (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+// Testing URL fetching
+router.post("/fetchURL", async (req, res) => {
+  const getData = (url, callback) => {
+    https
+      .get(url, (res) => {
+        let content = "";
+
+        res.on("data", (chunk) => {
+          content += chunk;
+        });
+
+        res.on("end", () => {
+          const re = new RegExp("<title>(.*?)</title>");
+          let title_re = re.exec(content);
+          console.log(content);
+          callback(title_re[1]);
+        });
+      })
+      .on("error", (e) => {
+        console.error(e);
+      });
+  };
+
+  getData(req.body.url, (title) => {
+    res.json({ title });
+  });
 });
 module.exports = router;
