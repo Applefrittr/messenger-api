@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Chat = require("../models/chat");
 const Message = require("../models/message");
+const getMetaData = require("../javascript/getMetaData.js");
 
 const chatHandler = (socket) => {
   // Get all chat listener, awaits incoming request from client and responds with all chats for the current user
@@ -78,6 +79,18 @@ const chatHandler = (socket) => {
     // filter out recipients from chat.username array
     const recipients = chat.usernames.filter((username) => username !== user);
 
+    // Detect if a URL link is in the msgObj.text value
+    const URLREGEXP = new RegExp(process.env.URL_REGEXP, "gi");
+    console.log("regexp:", URLREGEXP);
+    const urls = [...msgObj.text.matchAll(URLREGEXP)].flat(1);
+    console.log("urls:", urls);
+    let metaData = null;
+
+    // ONLY scrape meta data if there is 1 URL link!  Do nothing if 0 or more than 1
+    if (urls.length === 1) {
+      metaData = await getMetaData(urls[0]);
+    }
+
     const message = new Message({
       username: user,
       avatar: avatar,
@@ -86,6 +99,7 @@ const chatHandler = (socket) => {
       text: msgObj.text,
       gif: msgObj.gif,
       groupChat: chat.groupChat ? true : false,
+      urlMetaData: metaData ? metaData : null, // testing metaData object addition
     });
 
     recipients.forEach((username) => {

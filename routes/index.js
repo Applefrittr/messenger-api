@@ -10,35 +10,8 @@ router.get("/giphyAPI", keysController.giphyAPI);
 
 // Testing URL fetching
 router.post("/fetchURL", async (req, res, next) => {
-  //   const getData = (url, callback) => {
-  //     try {
-  //       https
-  //         .get(url, (res) => {
-  //           let content = "";
-
-  //           res.on("data", (chunk) => {
-  //             content += chunk;
-  //           });
-
-  //           res.on("end", () => {
-  //             const re = new RegExp("<title>(.*?)</title>");
-  //             let title_re = re.exec(content);
-  //             //console.log(content);
-  //             callback(title_re[1]);
-  //           });
-  //         })
-  //         .on("error", (e) => {
-  //           console.error(e);
-  //         });
-  //     } catch (e) {
-  //       //console.log(e);
-  //       next(e);
-  //     }
-  //   };
-  //console.log("body:", req.body);
-  //const parsedText = await linkify(req.body.url);
-  getMetaData(req.body.url);
-  res.json({ message: "paged loaded" });
+  const metaData = await getMetaData(req.body.url);
+  res.json({ metaData });
 });
 
 module.exports = router;

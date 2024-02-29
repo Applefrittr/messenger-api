@@ -12,6 +12,12 @@ const MessageSchema = new Schema(
     text: { type: String },
     gif: { type: String },
     groupChat: { type: Boolean },
+    urlMetaData: {
+      url: { type: String },
+      title: { type: String },
+      description: { type: String },
+      image: { type: String },
+    },
   },
   {
     toObject: { virtuals: true },
