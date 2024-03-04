@@ -13,10 +13,10 @@ const MessageSchema = new Schema(
     gif: { type: String },
     groupChat: { type: Boolean },
     urlMetaData: {
-      url: { type: String },
-      title: { type: String },
-      description: { type: String },
-      image: { type: String },
+      "og:site_name": { type: String },
+      "og:title": { type: String },
+      "og:description": { type: String },
+      "og:image": { type: String },
     },
   },
   {

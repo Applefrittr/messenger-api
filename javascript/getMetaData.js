@@ -4,28 +4,39 @@ const axios = require("axios");
 // Take a param URL, request the markup with axios and then scrape the meta tag data using cheerio.  Pass the resulting
 // data object back to handler to be routed back to client for rendering
 const getMetaData = async (url) => {
-  const metaData = { url: null, title: null, description: null, image: null };
+  try {
+    const metaData = {
+      "og:site_name": null,
+      "og:title": null,
+      "og:description": null,
+      "og:image": null,
+    };
 
-  // NEED AN ERROR HANDLER IF AXIOS GET REQUEST FAILS OR INVALID URL IS PASSED!
-  const response = await axios.get(url);
+    // NEED AN ERROR HANDLER IF AXIOS GET REQUEST FAILS OR INVALID URL IS PASSED!
+    const response = await axios.get(url);
 
-  const $ = cheerio.load(response.data);
+    const $ = cheerio.load(response.data);
 
-  // Select Open Graph meta tags and assign the contents to our metaData object
-  const $metaDataOG = $(`meta[property^="og:"]`);
+    // Select Open Graph meta tags and assign the contents to our metaData object
+    const $metaDataOG = $(`meta[property^="og:"]`);
 
-  $metaDataOG.each((i, elem) => {
-    const metaTag = $(elem).attr();
+    $metaDataOG.each((i, elem) => {
+      const metaTag = $(elem).attr();
+      console.log(metaTag);
 
-    for (const key of Object.keys(metaData)) {
-      if (metaTag.property.includes(key)) {
-        metaData[key] = metaTag.content;
+      for (const key of Object.keys(metaData)) {
+        if (metaTag.property === key) {
+          metaData[key] = metaTag.content;
+        }
       }
-    }
-  });
+    });
 
-  console.log(metaData);
-  return metaData;
+    console.log(metaData);
+    return metaData;
+  } catch (err) {
+    console.log("Unable to retrieve url content");
+    return null;
+  }
 };
 
 module.exports = getMetaData;
