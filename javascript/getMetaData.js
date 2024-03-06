@@ -10,6 +10,7 @@ const getMetaData = async (url) => {
       "og:title": null,
       "og:description": null,
       "og:image": null,
+      "og:url": null,
     };
 
     // NEED AN ERROR HANDLER IF AXIOS GET REQUEST FAILS OR INVALID URL IS PASSED!
@@ -31,7 +32,15 @@ const getMetaData = async (url) => {
       }
     });
 
+    if (metaData["og:title"] === null) {
+      const $titleHTML = $("title");
+      metaData["og:title"] = $titleHTML.text();
+    }
+
+    // Set url value to passed url param
+    metaData["og:url"] = url;
     console.log(metaData);
+
     return metaData;
   } catch (err) {
     console.log("Unable to retrieve url content");

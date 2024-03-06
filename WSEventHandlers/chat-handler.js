@@ -79,18 +79,6 @@ const chatHandler = (socket) => {
     // filter out recipients from chat.username array
     const recipients = chat.usernames.filter((username) => username !== user);
 
-    // Detect if a URL link is in the msgObj.text value
-    const URLREGEXP = new RegExp(process.env.URL_REGEXP, "gi");
-    console.log("regexp:", URLREGEXP);
-    const urls = [...msgObj.text.matchAll(URLREGEXP)].flat(1);
-    console.log("urls:", urls);
-    let metaData = null;
-
-    // ONLY scrape meta data if there is 1 URL link!  Do nothing if 0 or more than 1
-    if (urls.length === 1) {
-      metaData = await getMetaData(urls[0]);
-    }
-
     const message = new Message({
       username: user,
       avatar: avatar,
@@ -99,8 +87,20 @@ const chatHandler = (socket) => {
       text: msgObj.text,
       gif: msgObj.gif,
       groupChat: chat.groupChat ? true : false,
-      urlMetaData: metaData ? metaData : null, // testing metaData object addition
+      urlMetaData: {}, // testing metaData object addition
     });
+
+    // Detect if a URL link is in the msgObj.text value
+    const URLREGEXP = new RegExp(process.env.URL_REGEXP, "gi");
+    const urls = [...msgObj.text.matchAll(URLREGEXP)].flat(1);
+
+    // ONLY scrape meta data and set message.urlMetaData if there is 1 URL link!  Do nothing if 0 or more than 1
+    if (urls.length === 1) {
+      const metaData = await getMetaData(urls[0]);
+      for (const [key, value] of Object.entries(metaData)) {
+        message.urlMetaData.set(key, value);
+      }
+    }
 
     recipients.forEach((username) => {
       const counterObj = chat.newMsgCounter.find(
@@ -196,7 +196,20 @@ const chatHandler = (socket) => {
       text: msgObj.text,
       gif: msgObj.gif,
       groupChat: users.length > 2 ? true : false,
+      urlMetaData: {},
     });
+
+    // Detect if a URL link is in the msgObj.text value
+    const URLREGEXP = new RegExp(process.env.URL_REGEXP, "gi");
+    const urls = [...msgObj.text.matchAll(URLREGEXP)].flat(1);
+
+    // ONLY scrape meta data and set message.urlMetaData if there is 1 URL link!  Do nothing if 0 or more than 1
+    if (urls.length === 1) {
+      const metaData = await getMetaData(urls[0]);
+      for (const [key, value] of Object.entries(metaData)) {
+        message.urlMetaData.set(key, value);
+      }
+    }
 
     recipients.forEach((username) => {
       const counterObj = chat.newMsgCounter.find(

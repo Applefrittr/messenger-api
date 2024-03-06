@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const keysController = require("../controllers/keys-controller");
-const https = require("https");
-const linkify = require("../javascript/linkify");
 const getMetaData = require("../javascript/getMetaData");
 
 // GET Giphy API key stored in .env

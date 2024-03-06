@@ -12,12 +12,7 @@ const MessageSchema = new Schema(
     text: { type: String },
     gif: { type: String },
     groupChat: { type: Boolean },
-    urlMetaData: {
-      "og:site_name": { type: String },
-      "og:title": { type: String },
-      "og:description": { type: String },
-      "og:image": { type: String },
-    },
+    urlMetaData: { type: Map, of: String },
   },
   {
     toObject: { virtuals: true },

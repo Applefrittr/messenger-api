@@ -10,7 +10,8 @@ const CommentSchema = new Schema(
     text: { type: String },
     gif: { type: String },
     profile: { type: String },
-    timestamp: Date,
+    timestamp: { type: Date },
+    urlMetaData: { type: Map, of: String },
   },
   {
     toObject: { virtuals: true },
