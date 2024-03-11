@@ -13,7 +13,6 @@ const getMetaData = async (url) => {
       "og:url": null,
     };
 
-    // NEED AN ERROR HANDLER IF AXIOS GET REQUEST FAILS OR INVALID URL IS PASSED!
     const response = await axios.get(url);
 
     const $ = cheerio.load(response.data);

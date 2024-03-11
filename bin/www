@@ -8,7 +8,7 @@ const app = require("../app");
 const debug = require("debug")("messenger-api:server");
 const http = require("http");
 const { Server } = require("socket.io");
-const connectionHandler = require("../WSEventHandlers/connection-handler");
+const userHandler = require("../WSEventHandlers/user-handler");
 const chatHandler = require("../WSEventHandlers/chat-handler");
 const friendHandler = require("../WSEventHandlers/friend-handler");
 const commentHandler = require("../WSEventHandlers/comment-handler");
@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
   if (socket.recovered) {
     console.log("connection recovered", socket.id, socket.rooms);
   } else {
-    connectionHandler(socket);
+    userHandler(socket);
     chatHandler(socket);
     friendHandler(socket);
     commentHandler(socket);

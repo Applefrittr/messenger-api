@@ -50,26 +50,6 @@ exports.create = [
   }),
 ];
 
-// GET all users in the database, returns back to front end
-exports.users_GET = asyncHandler(async (req, res, next) => {
-  const users = await User.find(
-    {},
-    {
-      password: 0,
-      personal: 0,
-      birthday: 0,
-      chats: 0,
-      friends: 0,
-      country: 0,
-      requestIn: 0,
-      requestOut: 0,
-      comments: 0,
-    }
-  ).exec();
-
-  res.json({ users });
-});
-
 // recieves a JWT from the front end, verifies, decodes, and then passes payload back to the front end (the logged in user info)
 exports.login_GET = [
   handleToken,
@@ -122,55 +102,5 @@ exports.login_POST = [
         res.json({ errors: [{ msg: "Incorrect Password" }] });
       }
     }
-  }),
-];
-
-exports.logout_POST = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.user }).exec();
-
-  user.online = false;
-  await user.save();
-
-  res.end();
-});
-
-// GET specific user profile details
-exports.profile_GET = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.user })
-    .populate({
-      path: "friends",
-      options: { sort: { username: 1 } },
-    })
-    .populate({
-      path: "requestIn",
-      options: { sort: { username: 1 } },
-    })
-    .populate({
-      path: "requestOut",
-      options: { sort: { username: 1 } },
-    })
-    .populate("comments")
-    .populate("chats")
-    .exec();
-
-  console.log("requesting...");
-  res.json({ user });
-});
-
-// POST the edits to the logged in user profile
-exports.profile_POST = [
-  handleToken,
-  asyncHandler(async (req, res, next) => {
-    const user = await User.findOne({ username: req.params.user }).exec();
-
-    user.country = req.body.country;
-    user.personal = req.body.personal;
-    user.birthday = req.body.birthday;
-    user.avatar = req.body.avatar;
-
-    console.log(user);
-
-    await user.save();
-    res.json({ message: "edits submitted" });
   }),
 ];
