@@ -1,6 +1,6 @@
 const User = require("../models/user");
 
-const userHandler = (socket) => {
+const userHandler = (socket, io) => {
   socket.on("user login", async (username, callback) => {
     console.log(username, "connected!");
     socket.join(username);
@@ -22,6 +22,15 @@ const userHandler = (socket) => {
       .populate("comments")
       .populate("chats")
       .exec();
+
+    if (user.online) {
+      console.log("dupe login");
+      socket.broadcast.to(username).emit("duplicate login");
+    }
+
+    user.online = true;
+
+    await user.save();
 
     socket.broadcast.emit("friend login", username);
 
@@ -51,6 +60,10 @@ const userHandler = (socket) => {
   socket.on("disconnect", (reason) => {
     console.log("user disconnected");
     console.log(reason);
+  });
+
+  socket.on("all connections", () => {
+    console.log(io.sockets.sockets);
   });
 };
 

@@ -54,14 +54,18 @@ exports.create = [
 exports.login_GET = [
   handleToken,
   asyncHandler(async (req, res, next) => {
-    jwt.verify(req.token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-      if (err) {
-        console.log("error");
-        res.json({ message: "Credentials expired, please login again." });
-      } else {
-        res.json({ payload });
+    jwt.verify(
+      req.token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, payload) => {
+        if (err) {
+          console.log("error");
+          res.json({ message: "Credentials expired, please login again." });
+        } else {
+          res.json({ payload });
+        }
       }
-    });
+    );
   }),
 ];
 
@@ -76,26 +80,22 @@ exports.login_POST = [
     if (!errors.isEmpty()) {
       res.json({ errors: errors.array() });
     } else {
-      const userUpdate = await User.findOne({
-        username: req.body.username,
-      }).exec();
       const user = await User.findOne({ username: req.body.username }) // Query the user and call lean() to convert to regular JS object to prep for JWT serialization
         .select("+password")
         .lean()
         .exec();
+      // catch incorrect or non-existant username
       if (!user) {
         res.json({ errors: [{ msg: "User does not exist" }] });
         return;
       }
-      if (await bcrypt.compare(req.body.password, user.password)) {
+      // check if username and password match to user in the DB
+      if (bcrypt.compare(req.body.password, user.password)) {
         // Create web token to be passed back to front end w/ a 1 day expiration
         console.log("creating jwt...");
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: 60 * 60 * 24,
         });
-        userUpdate.online = true;
-
-        await userUpdate.save();
 
         res.json({ message: "User logged in", accessToken });
       } else {
