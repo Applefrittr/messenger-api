@@ -47,9 +47,9 @@ io.on("connection", (socket) => {
     console.log("connection recovered", socket.id, socket.rooms);
   } else {
     userHandler(socket, io);
-    chatHandler(socket);
-    friendHandler(socket);
-    commentHandler(socket);
+    chatHandler(socket, io);
+    friendHandler(socket, io);
+    commentHandler(socket, io);
   }
 });
 

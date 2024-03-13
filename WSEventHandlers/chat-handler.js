@@ -3,7 +3,7 @@ const Chat = require("../models/chat");
 const Message = require("../models/message");
 const getMetaData = require("../javascript/getMetaData.js");
 
-const chatHandler = (socket) => {
+const chatHandler = (socket, io) => {
   // Get all chat listener, awaits incoming request from client and responds with all chats for the current user
   socket.on("get all chats", async (username, callback) => {
     const user = await User.findOne({ username: username }, { password: 0 });
@@ -44,6 +44,7 @@ const chatHandler = (socket) => {
         await chat.save();
       }
     }
+    io.in(username).emit("update chat list");
   });
 
   // Get Chat page listener, paginates the message data in the Chat object and returns a chunk back tot he client
@@ -136,7 +137,7 @@ const chatHandler = (socket) => {
         chatID
       );
 
-    socket.to(recipients).emit("update chat list");
+    io.in(chat.usernames).emit("update chat list");
 
     callback({ message });
   });
@@ -241,7 +242,7 @@ const chatHandler = (socket) => {
         chat._id
       );
 
-    socket.to(usernames).emit("update chat list");
+    io.in(usernames).emit("update chat list");
 
     callback({ id: chat._id });
   });
