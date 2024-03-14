@@ -24,7 +24,6 @@ const userHandler = (socket, io) => {
       .exec();
 
     if (user.online) {
-      console.log("dupe login");
       socket.broadcast.to(username).emit("duplicate login");
     }
 
@@ -60,10 +59,6 @@ const userHandler = (socket, io) => {
   socket.on("disconnect", (reason) => {
     console.log("user disconnected");
     console.log(reason);
-  });
-
-  socket.on("all connections", () => {
-    console.log(io.sockets.sockets);
   });
 };
 

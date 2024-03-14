@@ -19,7 +19,6 @@ function handleToken(req, res, next) {
             error.status = 401;
             next(error);
           } else {
-            //console.log("jwt verified");
             next();
           }
         }
@@ -42,8 +41,6 @@ const handleTokenWS = (socket, next) => {
         error.status = 401;
         next(error);
       } else {
-        console.log("jwt verified!");
-        console.log(socket.id, socket.rooms);
         next();
       }
     });

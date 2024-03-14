@@ -38,7 +38,6 @@ exports.create = [
 
       bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
         if (err) {
-          console.log(err);
           return;
         } else {
           user.password = hashedPassword;
@@ -59,7 +58,6 @@ exports.login_GET = [
       process.env.ACCESS_TOKEN_SECRET,
       async (err, payload) => {
         if (err) {
-          console.log("error");
           res.json({ message: "Credentials expired, please login again." });
         } else {
           res.json({ payload });
@@ -92,7 +90,6 @@ exports.login_POST = [
       // check if username and password match to user in the DB
       if (bcrypt.compare(req.body.password, user.password)) {
         // Create web token to be passed back to front end w/ a 1 day expiration
-        console.log("creating jwt...");
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: 60 * 60 * 24,
         });
