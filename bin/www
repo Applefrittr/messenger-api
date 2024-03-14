@@ -30,7 +30,7 @@ const server = http.createServer(app);
 // Mount socketapi to server
 const io = new Server(server, {
   cors: {
-    origin: "https://applefrittr.github.io/messenger-app",
+    origin: "https://applefrittr.github.io",
   },
   connectionStateRecovery: {
     maxDisconnectionDuration: 2 * 60 * 1000,
